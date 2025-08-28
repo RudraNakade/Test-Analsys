@@ -1,1 +1,11 @@
 /2024
+/Igniter Notes
+# /Race2Space/2025/20250704_ICLR
+# /Race2Space/2025/Chronos
+# /Race2Space/2025/Data
+# /Race2Space/2025/RED Cam
+.vscode/
+*.h5
+*.mp4
+*.png
+raw_data/

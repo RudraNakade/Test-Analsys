@@ -22,7 +22,7 @@ ox_CdA = 1.7e-6
 
 throat_D = 13.542e-3
 throat_A = (np.pi * throat_D**2) / 4
-cstar_eff = 1
+cstar_eff = 0.7
 CR = 8.7248
 
 ###########################################

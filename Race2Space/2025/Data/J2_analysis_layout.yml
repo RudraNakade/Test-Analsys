@@ -1,0 +1,613 @@
+dataset:
+  derived_channels:
+    CDA101:
+      colour: ''
+      dependencies:
+      - DT730
+      - M730
+      - PTX101
+      - PTX102
+      expr: (10**6) * M730 / sqrt(2 * DT730 * (PTX102 - PTX101) * (10**5))
+      groups:
+      - derived
+      id: CDA101
+      name: CDA101 Fuel Injector CdA
+      units: mm^2
+    CDA102:
+      colour: ''
+      dependencies:
+      - DT730
+      - M730
+      - PT732
+      - PTX102
+      expr: (10**6) * M730 / sqrt(2 * DT730 * (PT732  - PTX102) * (10**5))
+      groups:
+      - derived
+      id: CDA102
+      name: CDA102 Regen Channel CdA
+      units: mm^2
+    CDA201:
+      colour: ''
+      dependencies:
+      - DT850
+      - M850
+      - PT852
+      - PTX101
+      expr: (10**6) * M850 / sqrt(2 * DT850 * (PT852 - PTX101) * (10**5))
+      groups:
+      - derived
+      id: CDA201
+      name: CDA201 Ox Injector CdA
+      units: mm^2
+    CSTAR:
+      colour: ''
+      dependencies:
+      - M730
+      - M850
+      - PTX101
+      expr: (PTX101 +1) * 0.0014 * (10**5) / (M730 + M850)
+      groups:
+      - derived
+      id: CSTAR
+      name: CSTAR
+      units: m/s
+    DPX101:
+      colour: ''
+      dependencies:
+      - PTX101
+      - PTX102
+      expr: PTX102 - PTX101
+      groups:
+      - derived
+      id: DPX101
+      name: DPX101 Fuel Injector dP
+      units: Pressure (bar(g))
+    DPX102:
+      colour: ''
+      dependencies:
+      - PT852
+      - PTX101
+      expr: PT852 - PTX101
+      groups:
+      - derived
+      id: DPX102
+      name: DPX102 Ox Injector dP
+      units: bar(g)
+    DPX103:
+      colour: ''
+      dependencies:
+      - PT732
+      - PTX102
+      expr: PT732 - PTX102
+      groups:
+      - derived
+      id: DPX103
+      name: DPX103 Regen Channel dP
+      units: bar(g)
+    DTCX101:
+      colour: ''
+      dependencies:
+      - TC732
+      - TCX101
+      expr: 'TCX101 -TC732 '
+      groups:
+      - derived
+      id: DTCX101
+      name: DTCX Fuel Temp Rise
+      units: ''
+    DTX101:
+      colour: ''
+      dependencies:
+      - TC732
+      - TCX101
+      expr: 'TCX101 -TC732 '
+      groups:
+      - derived
+      id: DTX101
+      name: DTX Fuel Temp Rise
+      units: degC
+    ISP:
+      colour: ''
+      dependencies:
+      - LC600
+      - M730
+      - M850
+      expr: LC600 / (9.81 * (M730 + M850))
+      groups:
+      - derived
+      id: ISP
+      name: ISP
+      units: ''
+    ISPX:
+      colour: ''
+      dependencies:
+      - LC600
+      - M730
+      - M850
+      expr: LC600 / (9.81 * (M730 + M850))
+      groups:
+      - derived
+      id: ISPX
+      name: ISP Experiment
+      units: s
+    OF:
+      colour: ''
+      dependencies:
+      - M730
+      - M850
+      expr: M850 / M730
+      groups:
+      - derived
+      id: OF
+      name: OF Ratio
+      units: ''
+    OFR:
+      colour: ''
+      dependencies:
+      - M730
+      - M850
+      expr: M850 / M730
+      groups:
+      - derived
+      id: OFR
+      name: OF Ratio
+      units: OF
+  filename: C:/Users/Rudra/Desktop/Propulsion/Test Data/Race2Space/2025/20250704_ICLR/20250704-008-release.h5
+  live: false
+  name: 20250704-008
+dock:
+  state:
+    float: []
+    main:
+    - horizontal
+    - - - vertical
+        - - - dock
+            - LC600 Thrust
+            - {}
+          - - dock
+            - DPX102 Ox Injector dP
+            - {}
+        - sizes:
+          - 632
+          - 631
+    - sizes:
+      - 2536
+  windows:
+  - channels:
+    - channel_id: LC600
+      colour: '#8dd3c7'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 0
+    - channel_id: M730
+      colour: '#ff0000'
+      dataset: 20250704-008
+      format: '%8.3f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 1
+    - channel_id: M850
+      colour: '#0000ff'
+      dataset: 20250704-008
+      format: '%8.3f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 1
+    - channel_id: PTX101
+      colour: '#ffff00'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 2
+    - channel_id: DTX101
+      colour: '#fb8072'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: true
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 3
+    - channel_id: PT852
+      colour: '#ffed6f'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 2
+    - channel_id: TCX101
+      colour: '#ffffb3'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 3
+    - channel_id: PT732
+      colour: '#fb8072'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 2
+    - channel_id: TC732
+      colour: '#80b1d3'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 3
+    - channel_id: PTX102
+      colour: '#fdb462'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 2
+    cursor:
+      label_position: 0.6077586206896552
+      show: true
+    legend:
+      offset:
+      - 41.23306689103913
+      - 67.0
+      show: true
+      show_numeric: false
+    name: LC600 Thrust
+    region:
+      label_position:
+      - 30
+      - 279
+      measurements:
+        delta: true
+        freq: false
+        gradient: true
+        integ: false
+        left: true
+        max: false
+        mean: true
+        min: false
+        period: false
+        pkpk: true
+        right: true
+        rms: false
+        std: false
+        var: false
+      show: true
+    type: plot
+    viewboxes:
+    - twinx: false
+      twiny: false
+      x_axis:
+        grid: false
+        last_n_secs: 10
+        link_idx: null
+        manual_from: -7.031659442570552
+        manual_to: 16.279762442917978
+        mode: manual
+        mouse: true
+        units: s
+      y_axis:
+        autosi: false
+        grid: false
+        manual_from: -0.027928613903230315
+        manual_to: 0.8539534605986766
+        mode: auto_vis
+        mouse: false
+        offset: 0.0
+        scale: 1.0
+        units: N
+    - twinx: true
+      twiny: false
+      x_axis:
+        grid: false
+        last_n_secs: 10
+        link_idx: null
+        manual_from: -7.138375005627213
+        manual_to: 16.279762442917974
+        mode: manual
+        mouse: true
+        units: null
+      y_axis:
+        autosi: false
+        grid: false
+        manual_from: -0.16413743439210499
+        manual_to: 2.558361955088429
+        mode: auto_vis
+        mouse: false
+        offset: 0.0
+        scale: 1.0
+        units: kg/s
+    - twinx: true
+      twiny: false
+      x_axis:
+        grid: false
+        last_n_secs: 10
+        link_idx: null
+        manual_from: -7.138375005627213
+        manual_to: 16.279762442917974
+        mode: manual
+        mouse: true
+        units: null
+      y_axis:
+        autosi: false
+        grid: false
+        manual_from: -1.593410701713681
+        manual_to: 34.24665985969198
+        mode: auto_vis
+        mouse: false
+        offset: 0.0
+        scale: 1.0
+        units: bar(g)
+    - twinx: true
+      twiny: false
+      x_axis:
+        grid: false
+        last_n_secs: 10
+        link_idx: null
+        manual_from: -7.138375005627213
+        manual_to: 16.279762442917974
+        mode: last_n
+        mouse: false
+        units: null
+      y_axis:
+        autosi: false
+        grid: false
+        manual_from: 3.1534136798793
+        manual_to: 58.49359761444396
+        mode: auto_vis
+        mouse: false
+        offset: 0.0
+        scale: 1.0
+        units: degC
+  - channels:
+    - channel_id: OFR
+      colour: '#ffffb3'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 1
+    - channel_id: ISPX
+      colour: '#bebada'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 2
+    - channel_id: CSTAR
+      colour: '#ffed6f'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 3
+    - channel_id: CDA101
+      colour: '#80b1d3'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 4
+    - channel_id: CDA102
+      colour: '#fdb462'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 4
+    - channel_id: CDA201
+      colour: '#fb8072'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 4
+    - channel_id: TC852
+      colour: '#ccebc5'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 5
+    - channel_id: TC851
+      colour: '#fdb462'
+      dataset: 20250704-008
+      format: '%.02f'
+      highlight: false
+      show_channel: true
+      show_limits: false
+      show_minmax: false
+      viewbox_idx: 5
+    cursor:
+      label_position: 0.5
+      show: false
+    legend:
+      offset:
+      - 32.0
+      - 35.0
+      show: true
+      show_numeric: false
+    name: DPX102 Ox Injector dP
+    region:
+      label_position:
+      - 30
+      - 278
+      measurements:
+        delta: true
+        freq: false
+        gradient: true
+        integ: false
+        left: true
+        max: false
+        mean: true
+        min: false
+        period: false
+        pkpk: false
+        right: true
+        rms: false
+        std: false
+        var: false
+      show: true
+    type: plot
+    viewboxes:
+    - twinx: false
+      twiny: false
+      x_axis:
+        grid: false
+        last_n_secs: 10
+        link_idx: 0
+        manual_from: -7.644153334777597
+        manual_to: 16.78554077206836
+        mode: link
+        mouse: false
+        units: s
+      y_axis:
+        autosi: false
+        grid: false
+        manual_from: 58.2176052299429
+        manual_to: 74.7388090349746
+        mode: auto_vis
+        mouse: false
+        offset: 0.0
+        scale: 1.0
+        units: bar(g)
+    - twinx: true
+      twiny: false
+      x_axis:
+        grid: false
+        last_n_secs: 10
+        link_idx: 0
+        manual_from: -7.644153334777597
+        manual_to: 16.78554077206836
+        mode: link
+        mouse: false
+        units: null
+      y_axis:
+        autosi: false
+        grid: false
+        manual_from: 0.0
+        manual_to: 5.0
+        mode: manual
+        mouse: false
+        offset: 0.0
+        scale: 1.0
+        units: OF
+    - twinx: true
+      twiny: false
+      x_axis:
+        grid: false
+        last_n_secs: 10
+        link_idx: 0
+        manual_from: -7.644153334777597
+        manual_to: 16.78554077206836
+        mode: last_n
+        mouse: false
+        units: null
+      y_axis:
+        autosi: false
+        grid: false
+        manual_from: 0.0
+        manual_to: 250.0
+        mode: manual
+        mouse: false
+        offset: 0.0
+        scale: 1.0
+        units: s
+    - twinx: true
+      twiny: false
+      x_axis:
+        grid: false
+        last_n_secs: 10
+        link_idx: 0
+        manual_from: -7.644153334777597
+        manual_to: 16.78554077206836
+        mode: link
+        mouse: false
+        units: null
+      y_axis:
+        autosi: false
+        grid: false
+        manual_from: 0.0
+        manual_to: 2000.0
+        mode: manual
+        mouse: false
+        offset: 0.0
+        scale: 1.0
+        units: m/s
+    - twinx: true
+      twiny: false
+      x_axis:
+        grid: false
+        last_n_secs: 10
+        link_idx: 0
+        manual_from: -7.644153334777597
+        manual_to: 16.78554077206836
+        mode: link
+        mouse: false
+        units: null
+      y_axis:
+        autosi: false
+        grid: false
+        manual_from: 0.0
+        manual_to: 100.0
+        mode: manual
+        mouse: false
+        offset: 0.0
+        scale: 1.0
+        units: mm^2
+    - twinx: true
+      twiny: false
+      x_axis:
+        grid: false
+        last_n_secs: 10
+        link_idx: null
+        manual_from: -7.644153334777597
+        manual_to: 16.78554077206836
+        mode: last_n
+        mouse: false
+        units: null
+      y_axis:
+        autosi: false
+        grid: false
+        manual_from: -66.66387597406126
+        manual_to: 29.48190521444348
+        mode: auto_vis
+        mouse: false
+        offset: 0.0
+        scale: 1.0
+        units: degC
