@@ -2,7 +2,6 @@ from test_analysis import *
 from rocketcea.cea_obj_w_units import CEA_Obj
 from os import system
 from pyfluids import Fluid, FluidsList, Input
-from scipy.optimize import root_scalar
 system('cls')
 
 def spi_mdot(CdA, rho, dP):
@@ -11,7 +10,7 @@ def spi_mdot(CdA, rho, dP):
     #     raise ValueError("Pressure drop (dP) must be non-negative.")
     # dP = np.maximum(dP, 1e-6)  # Prevent division by zero or negative sqrt
     # return CdA * np.sqrt(2 * rho * dP)
-    return np.multiply(CdA*np.ones_like(dP), np.sqrt(2e5 * rho * dP), out=np.zeros_like(dP), where=(dP>0))
+    return np.multiply(CdA * np.ones_like(dP), np.sqrt(2e5 * rho * dP), out=np.zeros_like(dP), where=(dP>0))
 
 def spi_dP(mdot, CdA, rho):
     """Calculate pressure drop across a single-phase injector."""
@@ -26,9 +25,9 @@ def spi_CdA(mdot, dP, rho):
     return np.divide(mdot, np.sqrt(2e5 * rho * dP), out=np.zeros_like(mdot), where=(dP>0))
 
 # Import data and make channels
-base_data_folder = "C:\\Users\\Rudra\\Desktop\\Propulsion\\Test Data\\2025\\29_08_25_PLUTO_FLIGHT_QUAL"
-test_folder = "sample_data"
-data_folder = base_data_folder + "\\" + test_folder + "\\trimmed_data"
+base_data_folder = "C:\\Users\\Rudra\\Desktop\\Propulsion\\Test Data\\2025\\23_02_25_HOPPER_ENGINE"
+test_folder = "hotfire_2"
+data_folder = base_data_folder + "\\" + test_folder + "\\"
 
 ## Board sensor outputs:
 # Kermit: ch0sens, ch1sens, ch2sens, ch3sens, temp0, temp1
@@ -36,85 +35,87 @@ data_folder = base_data_folder + "\\" + test_folder + "\\trimmed_data"
 # Greg: Feedforward, FuelTankP, regAngle, Proportional_Term, Kp
 
 ## File names
-kermit_tank_data_file = ""
-kermit_fill_data_file = ""
-kermit_hose_data_file = ""
-greg_ereg_data_file   = ""
-stark_data_file       = ""
+kermit_tank_data_file = "kermit_telem_trim.csv"
+# kermit_fill_data_file = ""
+# kermit_hose_data_file = ""
+# greg_ereg_data_file   = ""
+stark_data_file       = "stark_telem_trim.csv"
 
 ## Datasets
 kermit_tank_data = Dataset(data_folder + kermit_tank_data_file) # N2, Ox, Fuel tank PTs
-kermit_fill_data = Dataset(data_folder + kermit_fill_data_file) # Filling panel PTs, Tank weight LC
-kermit_hose_data = Dataset(data_folder + kermit_hose_data_file) # Hoses PTs
-greg_ereg_data   = Dataset(data_folder + greg_ereg_data_file)   # Ereg PTs
+# kermit_fill_data = Dataset(data_folder + kermit_fill_data_file) # Filling panel PTs, Tank weight LC
+# kermit_hose_data = Dataset(data_folder + kermit_hose_data_file) # Hoses PTs
+# greg_ereg_data   = Dataset(data_folder + greg_ereg_data_file)   # Ereg PTs
 stark_data       = Dataset(data_folder + stark_data_file)       # Fuel + Ox Inj, Chamber PTs, Fuel Inj TC
 
 ## Reference time
-base_time = np.array(kermit_tank_data.backend_time)
+# base_time = np.array(kermit_tank_data.backend_time)
+base_time = np.array(stark_data.backend_time)
 
 ## Make channels
-n2_tank_p = kermit_tank_data.convert_to_channel('', 'N2 Tank Pressure')
-ox_tank_p = kermit_tank_data.convert_to_channel('', 'Ox Tank Pressure')
-fuel_tank_p = kermit_tank_data.convert_to_channel('', 'Fuel Tank Pressure')
+n2_tank_p = kermit_tank_data.convert_to_channel('ch1sens', 'N2 Tank Pressure')
+ox_tank_p = kermit_tank_data.convert_to_channel('ch0sens', 'Ox Tank Pressure')
+fuel_tank_p = stark_data.convert_to_channel('ch4sens', 'Fuel Tank Pressure')
 
-fuel_inj_p = stark_data.convert_to_channel('', 'Fuel Injector Pressure', kermit_tank_data)
-fuel_inj_t = stark_data.convert_to_channel('', 'Fuel Injector Temperature', kermit_tank_data)
-ox_inj_p = stark_data.convert_to_channel('', 'Ox Injector Pressure', kermit_tank_data)
-chamber_p = stark_data.convert_to_channel('', 'Chamber Pressure', kermit_tank_data)
+fuel_inj_p = stark_data.convert_to_channel('ch1sens', 'Fuel Injector Pressure', kermit_tank_data)
+fuel_inj_t = kermit_tank_data.convert_to_channel('temp1', 'Fuel Injector Temperature')
+ox_inj_p = stark_data.convert_to_channel('ch0sens', 'Ox Injector Pressure', kermit_tank_data)
+chamber_p = stark_data.convert_to_channel('ch3sens', 'Chamber Pressure', kermit_tank_data)
 
 ox_valve_angle = stark_data.convert_to_channel('oxAngle', 'Ox Valve Angle', kermit_tank_data)
 fuel_valve_angle = stark_data.convert_to_channel('fuelAngle', 'Fuel Valve Angle', kermit_tank_data)
 
 fuel_vdot = stark_data.convert_to_channel('flowmeter', 'Fuel vdot', kermit_tank_data, gain=1e-3) # converted to m^3/s
 
-rocket_weight = kermit_fill_data.convert_to_channel('', 'Tank Weight')
+# rocket_weight = kermit_fill_data.convert_to_channel('', 'Tank Weight')
 
-# Ereg channels
-ereg_fuel_tank_p = greg_ereg_data.convert_to_channel('FuelTankP', 'Ereg Fuel Tank Pressure', kermit_tank_data)
-ereg_ff = greg_ereg_data.convert_to_channel('Feedforward', 'Ereg Feedforward', kermit_tank_data)
-ereg_angle = greg_ereg_data.convert_to_channel('regAngle', 'Ereg Valve Angle', kermit_tank_data)
-ereg_p_term = greg_ereg_data.convert_to_channel('Proportional_Term', 'Ereg Proportional Term', kermit_tank_data)
-ereg_kp = greg_ereg_data.convert_to_channel('Kp', 'Ereg Kp', kermit_tank_data)
+# # Ereg channels
+# ereg_fuel_tank_p = greg_ereg_data.convert_to_channel('FuelTankP', 'Ereg Fuel Tank Pressure', kermit_tank_data)
+# ereg_ff = greg_ereg_data.convert_to_channel('Feedforward', 'Ereg Feedforward', kermit_tank_data)
+# ereg_angle = greg_ereg_data.convert_to_channel('regAngle', 'Ereg Valve Angle', kermit_tank_data)
+# ereg_p_term = greg_ereg_data.convert_to_channel('Proportional_Term', 'Ereg Proportional Term', kermit_tank_data)
+# ereg_kp = greg_ereg_data.convert_to_channel('Kp', 'Ereg Kp', kermit_tank_data)
 
 
 ## Propellant densities
-pdms_frac = 0.02
-rho_fuel_const = np.ones_like(base_time) * (786 * (1 - pdms_frac) + 965 * pdms_frac) # IPA / PDMS mix
+pdms_frac = 0.03
+rho_fuel_const = np.ones_like(base_time) * (786 * (1 - pdms_frac) + 965 * pdms_frac)
 
-n2o_vapor_pressure = 28e5
-tank_p = 50e5
-nitrous = Fluid(FluidsList.NitrousOxide).with_state(Input.pressure(n2o_vapor_pressure), Input.quality(0))
-rho_ox_const = np.ones_like(base_time) * nitrous.density
-# rho_ox_const = np.ones_like(base_time) * 930 
+# n2o_vapor_pressure = 28e5
+# tank_p = 50e5
+# nitrous = Fluid(FluidsList.NitrousOxide).with_state(Input.pressure(n2o_vapor_pressure), Input.quality(0))
+# rho_ox_const = np.ones_like(base_time) * nitrous.density
+rho_ox_const = np.ones_like(base_time) * 900
 
 ## Engine parameters
 eta_cstar_default = 0.95
 eta_cf_default = 0.90
 
 # Injector
-fuel_annulus_id = 17.29e-3
-fuel_annulus_od = 18.18e-3
+fuel_annulus_id = 5.569e-3
+fuel_annulus_od = 6e-3
 fuel_annulus_A = 0.25 * np.pi * (fuel_annulus_od**2 - fuel_annulus_id**2)
-fuel_film_A = 56 * 0.25 * np.pi * (0.4e-3)**2
+fuel_film_A = 42 * 0.25 * np.pi * (0.2e-3)**2
 fuel_inj_A = fuel_annulus_A + fuel_film_A
-fuel_inj_Cd = 0.7
+fuel_inj_Cd = 0.75
 
 fuel_inj_CdA = fuel_inj_Cd * fuel_inj_A
 # fuel_inj_CdA = 25e-6
 
-ox_inj_CdA = 79e-6
+ox_inj_CdA = 1.4e-6
+
 
 # Chamber
-dc = 92.00e-3
-dt = 42.41e-3
-de = 82.23e-3
+dc = 38.80e-3
+dt = 13.542e-3
+# de = 82.23e-3
 
 Ac = 0.25 * np.pi * dc**2
 At = 0.25 * np.pi * dt**2
-Ae = 0.25 * np.pi * de**2
+# Ae = 0.25 * np.pi * de**2
 
 cr = Ac/At
-eps = Ae/At
+# eps = Ae/At
 
 CEA = CEA_Obj(
     oxName = 'N2O',
@@ -147,6 +148,8 @@ ox_mdot_dP = Channel(spi_mdot(ox_inj_CdA, rho_ox_chosen, ox_inj_dP.data), base_t
 
 engine_running_mask = np.where((chamber_p.data > 5)&(fuel_mdot_flowmeter.data > 0)&(ox_mdot_dP.data > 0))[0]
 cold_flow = len(engine_running_mask) == 0
+
+from scipy.optimize import root_scalar
 
 def cstar_residual_eq_fuel_based(OF, pc, At, fuel_mdot, eta_cstar, cea_instance: CEA_Obj):
     cstar = cea_instance.get_Cstar(pc, OF)
@@ -205,8 +208,8 @@ if not cold_flow:
     cstar_flowmeter = Channel(cstar_flowmeter_data, base_time, 'C* (from ox dP + fuel flowmeter)')
     cstar_dp = Channel(cstar_dp_data, base_time, 'C* (from ox dP + fuel dP)')
 
-    OF_cea_fuel_flowmeter_arr = np.divide(ox_mdot_cea_flowmeter.data, fuel_mdot_flowmeter.data,
-                                          out=np.zeros_like(base_time),
+    OF_cea_fuel_flowmeter_arr = np.divide(ox_mdot_cea_flowmeter.data, fuel_mdot_flowmeter.data, 
+                                          out=np.zeros_like(base_time), 
                                           where=(ox_mdot_cea_flowmeter.data > 0) & (fuel_mdot_flowmeter.data > 0))
     OF_cea_fuel_flowmeter = Channel(OF_cea_fuel_flowmeter_arr, base_time, 'OF (from ox CEA + fuel flowmeter)')
 
@@ -218,7 +221,7 @@ if not cold_flow:
     OF_cea_ox_dp_arr = np.divide(ox_mdot_dP.data, fuel_mdot_cea_dp.data,
                                  out=np.zeros_like(base_time),
                                  where=(ox_mdot_dP.data > 0) & (fuel_mdot_cea_dp.data > 0))
-    OF_cea_ox_dp = Channel(OF_cea_ox_dp_arr, base_time, 'OF (from ox dP + fuel CEA)')
+    OF_cea_ox_dp = Channel(OF_cea_ox_dp_arr, base_time, 'OF (from fuel CEA + ox dP)')
 
     OF_dp_arr = np.divide(ox_mdot_dP.data, fuel_mdot_dP.data,
                           out=np.zeros_like(base_time),
@@ -252,7 +255,7 @@ pressure_plot.add_channel(fuel_tank_p)
 pressure_plot.add_channel(fuel_inj_p)
 pressure_plot.add_channel(ox_inj_p)
 pressure_plot.add_channel(chamber_p)
-pressure_plot.add_channel(ereg_fuel_tank_p)
+# pressure_plot.add_channel(ereg_fuel_tank_p)
 
 # Pressure drops plot
 pressure_drops_plot = Plot(title='Pressure Drops', xlabel='Time (s)', ylabel_primary='Pressure Drop (bar)')
@@ -275,16 +278,16 @@ if not cold_flow:
 cda_plot = Plot(title='CdA Values', xlabel='Time (s)', ylabel_primary='CdA (m²)')
 # Calculate fuel CdA from flowmeter and dP
 fuel_cda_flowmeter = Channel(spi_CdA(fuel_mdot_flowmeter.data, fuel_inj_dP.data, rho_fuel_chosen), base_time, 'Fuel CdA (from flowmeter)')
-fuel_cda_dp = Channel(spi_CdA(fuel_mdot_dP.data, fuel_inj_dP.data, rho_fuel_chosen), base_time, 'Fuel CdA (from dP)')
+# fuel_cda_dp = Channel(spi_CdA(fuel_mdot_dP.data, fuel_inj_dP.data, rho_fuel_chosen), base_time, 'Fuel CdA (from dP)')
 cda_plot.add_channel(fuel_cda_flowmeter)
-cda_plot.add_channel(fuel_cda_dp)
+# cda_plot.add_channel(fuel_cda_dp)
 
 if not cold_flow:
     # Calculate ox CdA
     ox_cda_dp = Channel(spi_CdA(ox_mdot_dP.data, ox_inj_dP.data, rho_ox_chosen), base_time, 'Ox CdA (from dP)')
     ox_cda_cea_flowmeter = Channel(spi_CdA(ox_mdot_cea_flowmeter.data, ox_inj_dP.data, rho_ox_chosen), base_time, 'Ox CdA (from CEA + flowmeter)')
     ox_cda_cea_dp = Channel(spi_CdA(ox_mdot_cea_dp.data, ox_inj_dP.data, rho_ox_chosen), base_time, 'Ox CdA (from CEA + dP)')
-    cda_plot.add_channel(ox_cda_dp)
+    # cda_plot.add_channel(ox_cda_dp)
     cda_plot.add_channel(ox_cda_cea_flowmeter)
     cda_plot.add_channel(ox_cda_cea_dp)
 
@@ -292,24 +295,24 @@ if not cold_flow:
 valve_angles_plot = Plot(title='Valve Angles', xlabel='Time (s)', ylabel_primary='Angle (degrees)')
 valve_angles_plot.add_channel(ox_valve_angle)
 valve_angles_plot.add_channel(fuel_valve_angle)
-valve_angles_plot.add_channel(ereg_angle)
+# valve_angles_plot.add_channel(ereg_angle)
 
-# Create figures for basic plots
+# # Create figures for basic plots
 pressure_figure = Figure(pressure_plot, figsize=(15, 8))
 pressure_drops_figure = Figure(pressure_drops_plot, figsize=(15, 8))
 mdot_figure = Figure(mdot_plot, figsize=(15, 8))
 cda_figure = Figure(cda_plot, figsize=(15, 8))
 valve_angles_figure = Figure(valve_angles_plot, figsize=(15, 8))
 
-pressure_figure.show()
-pressure_drops_figure.show()
-mdot_figure.show()
+# pressure_figure.show()
+# pressure_drops_figure.show()
+# mdot_figure.show()
 cda_figure.show()
-valve_angles_figure.show()
+# valve_angles_figure.show()
 
 if not cold_flow:
     # OF ratios plot
-    of_plot = Plot(title='OF Ratios', xlabel='Time (s)', ylabel_primary='OF Ratio')
+    of_plot = Plot(title='Oxidizer-to-Fuel Ratios', xlabel='Time (s)', ylabel_primary='OF Ratio')
     of_plot.add_channel(OF_cea_fuel_flowmeter)
     of_plot.add_channel(OF_cea_fuel_dp)
     of_plot.add_channel(OF_cea_ox_dp)
@@ -331,8 +334,8 @@ if not cold_flow:
     cstar_theoretical_figure = Figure(cstar_theoretical_plot, figsize=(15, 8))
     cstar_eff_figure = Figure(cstar_eff_plot, figsize=(15, 8))
     
-    of_figure.show()
-    cstar_theoretical_figure.show()
-    cstar_eff_figure.show()
+    # of_figure.show()
+    # cstar_theoretical_figure.show()
+    # cstar_eff_figure.show()
 
 plt.show()

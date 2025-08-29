@@ -187,18 +187,19 @@ class Dataset:
         
         print(f"Channel renamed from '{old_name}' to '{new_name}'")
 
-    def convert_to_channel(self, channel_name: str, label: str = None, zero_offset: float = 0.0, sync_dataset: 'Dataset' = None) -> 'Channel':
+    def convert_to_channel(self, channel_name: str, label: str = None, sync_dataset: 'Dataset' = None, zero_offset: float = 0.0, gain: float = 1.0) -> 'Channel':
         """
         Convert a dataset channel to a standalone Channel class instance.
         
         This method creates a Channel object from the specified dataset channel, optionally applying
-        zero offset correction and time synchronization with another dataset.
+        gain and zero offset correction and time synchronization with another dataset.
         
         Args:
             channel_name (str): Name of the channel to convert
             label (str, optional): Custom display name for the channel. Defaults to channel_name
-            zero_offset (float, optional): Offset value to subtract from channel data. Defaults to 0.0
             sync_dataset (Dataset, optional): Dataset to synchronize time base with. If None, uses original time base
+            zero_offset (float, optional): Offset value to subtract from channel data. Defaults to 0.0
+            gain (float, optional): Gain factor to multiply channel data. Defaults to 1.0
             
         Returns:
             Channel: New Channel instance containing the processed data
@@ -212,7 +213,7 @@ class Dataset:
         # Get channel data and backend time
         if sync_dataset is not None:
             # Sync to target dataset's time base
-            channel_data = self.sync_channel_to_dataset(channel_name, sync_dataset)
+            channel_data = self.sync_channel_to_dataset(channel_name, sync_dataset) * gain
             backend_time = sync_dataset.backend_time
         else:
             # Use original time base
@@ -224,7 +225,7 @@ class Dataset:
             label = channel_name
 
         # Create and return Channel instance
-        return Channel(channel_data, backend_time, label, zero_offset)
+        return Channel(np.array(channel_data), backend_time, label, zero_offset)
 
 class Channel:
     """

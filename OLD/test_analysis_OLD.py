@@ -18,11 +18,11 @@ ox_A = 0.25e-6 * np.pi * (0.7 ** 2) * 24
 ox_rho = 900
 ox_Cd = 0.2
 ox_CdA = ox_Cd * ox_A
-ox_CdA = 1.7e-6
+ox_CdA = 2.0e-6
 
 throat_D = 13.542e-3
 throat_A = (np.pi * throat_D**2) / 4
-cstar_eff = 0.7
+cstar_eff = 0.9
 CR = 8.7248
 
 ###########################################
@@ -131,22 +131,42 @@ mdot_tot_cea = np.zeros(len(chamber_P))
 ox_mdot_cea = np.zeros(len(chamber_P))
 core_OF_cea = np.zeros(len(chamber_P))
 
+from scipy.optimize import root_scalar
+
+def cstar_residual_eq(OF, pc, At, total_mdot, eta_cstar, cea_instance: CEA_Obj):
+    cstar = cea_instance.get_Cstar(pc, OF)
+    return At * pc * 1e5 / (cstar * eta_cstar) - total_mdot
+
 for i in range(len(chamber_P)):
-    OF = 1.5
-    diff = 1
-    while diff > 1e-3:
-        OFold = OF
-        if (fuel_core_mdot_flowmeter[i] < 1e-3) or (chamber_P[i] < 3) or (ox_mdot_cea[i] < 0):
-            OF = 0
-            ox_mdot_cea[i] = 0
-            break
-        mdot_tot_cea[i] = throat_A * chamber_P[i] * 1e5 / (CEA.get_Cstar(chamber_P[i], OF) * cstar_eff)
+    # OF = 1.5
+    # diff = 1
+    # while diff > 1e-3:
+    #     OFold = OF
+    #     if (fuel_core_mdot_flowmeter[i] < 1e-3) or (chamber_P[i] < 3) or (ox_mdot_cea[i] < 0):
+    #         OF = 0
+    #         ox_mdot_cea[i] = 0
+    #         break
+    #     mdot_tot_cea[i] = throat_A * chamber_P[i] * 1e5 / (CEA.get_Cstar(chamber_P[i], OF) * cstar_eff)
+    #     ox_mdot_cea[i] = mdot_tot_cea[i] - fuel_core_mdot_dP[i]
+    #     if fuel_core_mdot_dP[i] > 0:
+    #         OF = ox_mdot_cea[i] / fuel_core_mdot_dP[i]
+    #     else:
+    #         OF = 0
+    #     diff = abs((OFold - OF) / OF) if OF != 0 else 1
+    try:
+        OF = root_scalar(cstar_residual_eq, args=(chamber_P[i], throat_A, fuel_core_mdot_dP[i], cstar_eff, CEA), bracket=[0, 6], method='brentq', xtol=1e-3).root
+    except Exception as e:
+        print(f"Error occurred while solving for OF at index {i}: {e}")
+    if (fuel_core_mdot_dP[i] < 1e-3) or (chamber_P[i] < 3):
+        OF = 0
+        ox_mdot_cea[i] = 0
+    else:
+        cstar = CEA.get_Cstar(chamber_P[i], OF)
+        mdot_tot_cea[i] = throat_A * chamber_P[i] * 1e5 / (cstar * cstar_eff)
         ox_mdot_cea[i] = mdot_tot_cea[i] - fuel_core_mdot_dP[i]
-        if fuel_core_mdot_dP[i] > 0:
-            OF = ox_mdot_cea[i] / fuel_core_mdot_dP[i]
-        else:
+        if ox_mdot_cea[i] < 0:
+            ox_mdot_cea[i] = 0
             OF = 0
-        diff = abs((OFold - OF) / OF) if OF != 0 else 1
     core_OF_cea[i] = OF
 
 core_OF_ox_dP = np.divide(ox_mdot_inj_dP, fuel_core_mdot_dP,
@@ -169,7 +189,6 @@ ox_sys_CdA = np.divide(ox_mdot_cea, np.sqrt(2e5 * ox_system_dP * ox_rho),
 #                 where=mdot_tot_cea > 0)
 # plt.figure()
 # plt.plot(stark_cfTime, isp, label='Isp', color="tab:blue")
-
 
 ## Plotting
 # Create a single figure with a 2x3 grid of subplots
