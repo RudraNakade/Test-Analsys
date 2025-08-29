@@ -4,7 +4,6 @@ import numpy as np
 from typing import List, Dict, Union, Optional, Tuple
 import os
 
-
 class Dataset:
     """
     A class to handle CSV data loading, channel management, and data processing
@@ -49,7 +48,10 @@ class Dataset:
                 self.channels[channel] = np.array(self.data[channel])
                 
             print(f"Loaded dataset from {self.csv_path}")
-            print(f"Available channels: {self.channel_names}")
+            print(f"Available channels:")
+            for channel in self.channel_names:
+                print(f"-  {channel}")
+            print()
             
         except Exception as e:
             print(f"Error loading data: {e}")
@@ -476,34 +478,37 @@ class Plotter:
         # plt.show()
 
 if __name__ == "__main__":
-    kermit_path = "C:\\Users\\Rudra\\Desktop\\Propulsion\\Test Data\\2025\\29_08_25_PLUTO_FLIGHT_QUAL\\sample_data\\raw_data\\DMTHotfireSen0_trimmed.csv"
+    from os import system
+    system('cls')
+
+    kermit_path = "C:\\Users\\Rudra\\Desktop\\Propulsion\\Test Data\\2025\\29_08_25_PLUTO_FLIGHT_QUAL\\sample_data\\raw_data\\DMTHotfireSen0.csv"
     greg_path = "C:\\Users\\Rudra\\Desktop\\Propulsion\\Test Data\\2025\\29_08_25_PLUTO_FLIGHT_QUAL\\sample_data\\raw_data\\20250828_205052.521507Z_plt_greg_telem.csv"
-    stark_path = "C:\\Users\\Rudra\\Desktop\\Propulsion\\Test Data\\2025\\29_08_25_PLUTO_FLIGHT_QUAL\\sample_data\\raw_data\\DMTHotfireStark_trimmed.csv"
+    stark_path = "C:\\Users\\Rudra\\Desktop\\Propulsion\\Test Data\\2025\\29_08_25_PLUTO_FLIGHT_QUAL\\sample_data\\raw_data\\DMTHotfireStark.csv"
 
     kermit_data = Dataset(kermit_path)
     greg_data = Dataset(greg_path)
     stark_data = Dataset(stark_path)
 
-    stark_plotter = Plotter(figsize=(15, 10))
-    stark_plotter.create_plot(stark_data, 'ch0sens', label='ch0sens', title='Stark Data Channels')
-    stark_plotter.add_plot(stark_data, 'ch1sens', label='ch1sens')
-    stark_plotter.add_plot(stark_data, 'ch2sens', label='ch2sens')
-    stark_plotter.add_plot(stark_data, 'ch3sens', label='ch3sens')
-    stark_plotter.add_plot(stark_data, 'ch4sens', label='ch4sens')
-    stark_plotter.add_plot(stark_data, 'ch5sens', label='ch5sens')
-    stark_plotter.add_plot(stark_data, 'flowmeter', label='flowmeter')
-    stark_plotter.add_plot(stark_data, 'oxAngle', label='oxAngle')
-    stark_plotter.add_plot(stark_data, 'fuelAngle', label='fuelAngle')
-    stark_plotter.show_plot()
+    # stark_plotter = Plotter(figsize=(15, 10))
+    # stark_plotter.create_plot(stark_data, 'ch0sens', label='ch0sens', title='Stark Data Channels')
+    # stark_plotter.add_plot(stark_data, 'ch1sens', label='ch1sens')
+    # stark_plotter.add_plot(stark_data, 'ch2sens', label='ch2sens')
+    # stark_plotter.add_plot(stark_data, 'ch3sens', label='ch3sens')
+    # stark_plotter.add_plot(stark_data, 'ch4sens', label='ch4sens')
+    # stark_plotter.add_plot(stark_data, 'ch5sens', label='ch5sens')
+    # stark_plotter.add_plot(stark_data, 'flowmeter', label='flowmeter')
+    # stark_plotter.add_plot(stark_data, 'oxAngle', label='oxAngle')
+    # stark_plotter.add_plot(stark_data, 'fuelAngle', label='fuelAngle')
+    # stark_plotter.show_plot()
 
-    kermit_plotter = Plotter(figsize=(15, 10))
-    kermit_plotter.create_plot(kermit_data, 'ch0sens', title='Kermit Data Channels')
-    kermit_plotter.add_plot(kermit_data, 'ch1sens')
-    kermit_plotter.add_plot(kermit_data, 'ch2sens')
-    kermit_plotter.add_plot(kermit_data, 'ch3sens')
-    kermit_plotter.add_plot(kermit_data, 'temp0')
-    kermit_plotter.add_plot(kermit_data, 'temp1')
-    kermit_plotter.show_plot()
+    # kermit_plotter = Plotter(figsize=(15, 10))
+    # kermit_plotter.create_plot(kermit_data, 'ch0sens', title='Kermit Data Channels')
+    # kermit_plotter.add_plot(kermit_data, 'ch1sens')
+    # kermit_plotter.add_plot(kermit_data, 'ch2sens')
+    # kermit_plotter.add_plot(kermit_data, 'ch3sens')
+    # kermit_plotter.add_plot(kermit_data, 'temp0')
+    # kermit_plotter.add_plot(kermit_data, 'temp1')
+    # kermit_plotter.show_plot()
 
     # greg_plotter = Plotter(figsize=(15, 10))
     # greg_plotter.create_plot(greg_data, 'Feedforward', title='Greg Data Channels')
@@ -513,5 +518,5 @@ if __name__ == "__main__":
     # greg_plotter.add_plot(greg_data, 'Kp')
     # greg_plotter.show_plot()
 
-    # stark_data.joint_trim_and_save([kermit_data], 12630, 12790)
+    # stark_data.joint_trim_and_save([kermit_data], 12630, 12910)
     plt.show()
